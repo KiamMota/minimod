@@ -67,6 +67,8 @@ func Create(packageName string, flags CLIFlags) error {
 		}
 	}
 
+	cleanup = false
+
 	MessageOK("created module in", absPath)
 	MessageOK("done!")
 
