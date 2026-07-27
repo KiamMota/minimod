@@ -3,7 +3,9 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"time"
+	"unicode/utf8"
 )
 
 func main() {
@@ -26,7 +28,19 @@ func main() {
 	}
 }
 
+var validModulePath = regexp.MustCompile(`^[a-zA-Z0-9._/-]+$`)
+
 func Create(packageName string, flags CLIFlags) error {
+
+	if !utf8.ValidString(packageName) {
+		return NewMinimodError("package name is not valid utf8!")
+	}
+
+	// Agora o MatchString vai funcionar normalmente
+	if !validModulePath.MatchString(packageName) {
+		return NewMinimodError("package name contains invalid characters! Use only alphanumeric characters, hyphens, underscores, dots or slashes.")
+	}
+
 	start := time.Now()
 	VerboseLog(flags.Verbose, "starting create:", packageName)
 
