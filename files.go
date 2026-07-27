@@ -45,6 +45,20 @@ func WriteFile(path string, content string) error {
 
 	return nil
 }
+
+func ReadFile(path string) (string, error) {
+	if !FileExists(path) {
+		return "", NewMinimodError("File already exists!")
+	}
+
+	f, e := os.ReadFile(path)
+	if e != nil {
+		return "", NewMinimodError(e.Error())
+	}
+
+	return string(f), nil
+}
+
 func DeleteDir(path string) error {
 	_, e := os.Stat(path)
 	if e != nil {

@@ -1,16 +1,39 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"time"
 	"unicode/utf8"
+
+	"golang.org/x/mod/modfile"
 )
 
 func main() {
 	if len(os.Args) > 1 && (os.Args[1] == "-v" || os.Args[1] == "--version") {
-		MessageOK(Version())
+		println(Version())
+		return
+	}
+
+	if len(os.Args) > 1 && (os.Args[1] == "--go" || os.Args[1] == "-g") {
+		v, e := GoVersion()
+		if e != nil {
+			MessageError(e.Error())
+			return
+		}
+		println(v)
+		return
+	}
+
+	if len(os.Args) > 1 && (os.Args[1] == "-i" || os.Args[1] == "--info") {
+		v, e := ModInfo()
+		if e != nil {
+			MessageError(e.Error())
+			return
+		}
+		println(v)
 		return
 	}
 
@@ -29,6 +52,38 @@ func main() {
 }
 
 var validModulePath = regexp.MustCompile(`^[a-zA-Z0-9._/-]+$`)
+
+func GoVersion() (string, error) {
+	data, err := os.ReadFile("go.mod")
+	if err != nil {
+		return "", err
+	}
+
+	file, err := modfile.Parse("go.mod", data, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return file.Go.Version, nil
+}
+
+func ModInfo() (string, error) {
+	data, err := os.ReadFile("go.mod")
+	if err != nil {
+		return "", err
+	}
+
+	mod, err := modfile.Parse("go.mod", data, nil)
+	if err != nil {
+		return "", err
+	}
+
+	if mod.Module == nil {
+		return "", fmt.Errorf("module not found")
+	}
+
+	return mod.Module.Mod.Path, nil
+}
 
 func Create(packageName string, flags CLIFlags) error {
 
