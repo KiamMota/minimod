@@ -13,14 +13,12 @@ func GoModInit(packageName string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		println(message(
-			"Error executing module initialization in Go:",
-			err.Error(),
-			string(out),
-		))
+		return NewMinimodError(
+			"Error executing module initialization in Go:" + err.Error() + string(out),
+		)
 
 		if e := DeleteDir(packageName); e != nil {
-			println(message(e.Error()))
+			NewMinimodError(e.Error())
 		}
 
 		return err
