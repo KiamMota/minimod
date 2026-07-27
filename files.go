@@ -25,12 +25,13 @@ func CreateDir(packageName string) error {
 	if FileExists(packageName) {
 		return NewMinimodError("File already exists!")
 	}
-	e := os.Mkdir(packageName, os.FileMode(os.O_RDWR))
-	if e != nil {
-		return NewMinimodError(e.Error())
-	}
-	return nil
 
+	err := os.Mkdir(packageName, 0755)
+	if err != nil {
+		return NewMinimodError(err.Error())
+	}
+
+	return nil
 }
 
 func WriteFile(path string, content string) error {
