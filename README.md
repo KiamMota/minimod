@@ -1,4 +1,4 @@
-# Minimod
+# mm (minimod)
 
 The easiest way to start a Go project.
 
@@ -13,13 +13,13 @@ go install github.com/kiammota/minimod@latest
 Create a project:
 
 ```bash
-minimod myproject
+mm myproject
 ```
 
 Create a project with an MIT license:
 
 ```bash
-minimod myproject -l MIT
+mm myproject -l MIT
 ```
 
 ## Output
@@ -47,7 +47,7 @@ touch main.go
 just run:
 
 ```bash
-minimod myproject
+mm myproject
 ```
 
 ## License
