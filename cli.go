@@ -17,6 +17,8 @@ type CLIFlags struct {
 	License   string
 	Readme    bool
 	Main      bool
+	Duration  bool
+	Verbose   bool
 }
 
 func Version() string {
@@ -95,6 +97,9 @@ func GetCLIFlags() CLIFlags {
 		"do not create main.go",
 	)
 
+	duration := fs.Bool("duration", false, "duration")
+	verbose := fs.Bool("verbose", false, "verbose log")
+
 	readme := fs.Bool(
 		"readme",
 		false,
@@ -116,6 +121,8 @@ func GetCLIFlags() CLIFlags {
 	flags.Main = !*noMain
 	flags.Readme = *readme
 	flags.License = *license
+	flags.Duration = *duration
+	flags.Verbose = *verbose
 
 	return flags
 }

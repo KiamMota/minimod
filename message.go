@@ -49,3 +49,11 @@ func MessageWarn(msg ...any) {
 func MessageError(msg ...any) {
 	printMessage(red, "error", msg...)
 }
+
+func VerboseLog(verbose bool, msg ...any) {
+	if !verbose {
+		return
+	}
+
+	printMessage(gray, "verbose", msg...)
+}

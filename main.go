@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"time"
 )
 
 func main() {
@@ -26,6 +27,8 @@ func main() {
 }
 
 func Create(packageName string, flags CLIFlags) error {
+	start := time.Now()
+	VerboseLog(flags.Verbose, "starting create:", packageName)
 
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -33,49 +36,65 @@ func Create(packageName string, flags CLIFlags) error {
 	}
 
 	absPath := filepath.Join(pwd, packageName)
+	VerboseLog(flags.Verbose, "working directory:", pwd)
+	VerboseLog(flags.Verbose, "target path:", absPath)
 
+	VerboseLog(flags.Verbose, "creating directory")
 	if err := CreateDir(packageName); err != nil {
 		return err
 	}
 
 	cleanup := true
-
 	defer func() {
 		if cleanup {
-			DeleteDir(packageName)
+			VerboseLog(flags.Verbose, "cleanup:", packageName)
+			_ = DeleteDir(packageName)
 		}
 	}()
 
+	VerboseLog(flags.Verbose, "initializing go.mod")
+	t0 := time.Now()
 	if err := GoModInit(packageName); err != nil {
-		cleanup = true
 		return err
 	}
+	VerboseLog(flags.Verbose, "go.mod initialized in", time.Since(t0))
 
 	if flags.Main {
+		VerboseLog(flags.Verbose, "writing main.go")
+		t0 = time.Now()
 		if err := WriteFile(filepath.Join(packageName, "main.go"), MainContent()); err != nil {
-			cleanup = true
 			return err
 		}
+		VerboseLog(flags.Verbose, "main.go written in", time.Since(t0))
 	}
 
 	if flags.GitIgnore {
+		VerboseLog(flags.Verbose, "writing .gitignore")
+		t0 = time.Now()
 		if err := WriteFile(filepath.Join(packageName, ".gitignore"), GitIgnoreContent()); err != nil {
-			cleanup = true
 			return err
 		}
+		VerboseLog(flags.Verbose, ".gitignore written in", time.Since(t0))
 	}
 
 	if flags.Readme {
+		VerboseLog(flags.Verbose, "writing README.md")
+		t0 = time.Now()
 		if err := WriteFile(filepath.Join(packageName, "README.md"), ReadmeContent(packageName)); err != nil {
-			cleanup = true
 			return err
 		}
+		VerboseLog(flags.Verbose, "README.md written in", time.Since(t0))
 	}
 
 	cleanup = false
+	VerboseLog(flags.Verbose, "finished in", time.Since(start))
 
 	MessageOK("created module in", absPath)
 	MessageOK("done!")
+
+	if flags.Duration {
+		MessageOK("duration:", time.Since(start))
+	}
 
 	return nil
 }
