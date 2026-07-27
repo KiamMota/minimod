@@ -8,41 +8,44 @@ import (
 const (
 	reset = "\033[0m"
 	bold  = "\033[1m"
-	white = "\033[97m"
+	dim   = "\033[2m"
 
-	bgBlue   = "\033[44m"
-	bgGreen  = "\033[42m"
-	bgYellow = "\033[43m"
-	bgRed    = "\033[41m"
-
-	gray = "\033[90m"
+	white  = "\033[97m"
+	gray   = "\033[90m"
+	green  = "\033[32m"
+	blue   = "\033[34m"
+	yellow = "\033[33m"
+	red    = "\033[31m"
 )
 
-func log(bg string, msg ...any) {
+func printMessage(levelColor, level string, msg ...any) {
+	text := strings.TrimSpace(fmt.Sprint(msg...))
+
 	fmt.Printf(
-		"%s%s%sminimod%s %s|%s %s\n",
+		"%sminimod%s %s[%s]%s %s%s%s\n",
 		bold,
-		bg,
-		white,
 		reset,
-		gray,
+		dim,
+		level,
 		reset,
-		strings.TrimSpace(fmt.Sprint(msg...)),
+		levelColor,
+		text,
+		reset,
 	)
 }
 
 func MessageOK(msg ...any) {
-	log(bgGreen, msg...)
+	printMessage(green, "ok", msg...)
 }
 
 func MessageInfo(msg ...any) {
-	log(bgBlue, msg...)
+	printMessage(blue, "info", msg...)
 }
 
 func MessageWarn(msg ...any) {
-	log(bgYellow, msg...)
+	printMessage(yellow, "warn", msg...)
 }
 
 func MessageError(msg ...any) {
-	log(bgRed, msg...)
+	printMessage(red, "error", msg...)
 }

@@ -1,68 +1,77 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
 
 func main() {
-
-	if len(os.Args) < 2 {
-		MessageError("usage: minimod <module-name>")
+	if err := run(); err != nil {
+		MessageError(err.Error())
 		os.Exit(1)
 	}
+}
 
-	if len(os.Args) > 1 {
-		switch os.Args[1] {
-		case "-v", "--version":
-			println(Version())
-			return
+func run() error {
+	args := os.Args[1:]
 
-		case "-h", "--help":
-			println("just use minimod <module-name>")
-			return
-		}
+	if len(args) == 0 {
+		return fmt.Errorf("usage: minimod <module-name>")
 	}
 
-	packageName := os.Args[1]
+	switch args[0] {
+	case "-v", "--version":
+		fmt.Println(Version())
+		return nil
+
+	case "-h", "--help":
+		fmt.Println("usage: minimod <module-name>")
+		return nil
+	}
+
+	packageName := args[0]
 
 	pwd, err := os.Getwd()
 	if err != nil {
-		MessageError(err.Error())
-		os.Exit(1)
+		return err
 	}
 
 	absPath := filepath.Join(pwd, packageName)
 
 	if err := CreateDir(packageName); err != nil {
-		MessageError(err.Error())
-		os.Exit(1)
+		return err
 	}
 
+	cleanup := false
+	defer func() {
+		if cleanup {
+			DeleteDir(packageName)
+		}
+	}()
+
 	if err := GoModInit(packageName); err != nil {
-		MessageError(err.Error())
-		goto delete
+		cleanup = true
+		return err
 	}
 
 	if err := WriteFile(filepath.Join(packageName, "main.go"), MainContent()); err != nil {
-		MessageError(err.Error())
-		goto delete
+		cleanup = true
+		return err
 	}
 
 	if err := WriteFile(filepath.Join(packageName, ".gitignore"), GitIgnoreContent()); err != nil {
-		MessageError(err.Error())
-		goto delete
+		cleanup = true
+		return err
 	}
 
 	if err := WriteFile(filepath.Join(packageName, "README.md"), ReadmeContent(packageName)); err != nil {
-		MessageError(err.Error())
-		goto delete
+		cleanup = true
+		return err
 	}
 
 	MessageOK("created module in", absPath)
 	MessageOK("done!")
 
-delete:
-	DeleteDir(packageName)
-	os.Exit(1)
+	return nil
 }
