@@ -7,13 +7,13 @@ import (
 )
 
 func main() {
-	if err := run(); err != nil {
+	if err := Create(); err != nil {
 		MessageError(err.Error())
 		os.Exit(1)
 	}
 }
 
-func run() error {
+func Create() error {
 	args := os.Args[1:]
 
 	if len(args) == 0 {
