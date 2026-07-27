@@ -22,7 +22,7 @@ func printMessage(levelColor, level string, msg ...any) {
 	text := strings.TrimSpace(fmt.Sprint(msg...))
 
 	fmt.Printf(
-		"%sminimod%s %s[%s]%s %s%s%s\n",
+		"%sminmod%s %s[%s]%s %s%s%s\n",
 		bold,
 		reset,
 		dim,

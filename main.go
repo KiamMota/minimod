@@ -6,6 +6,11 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 && (os.Args[1] == "-v" || os.Args[1] == "--version") {
+		MessageOK(Version())
+		return
+	}
+
 	cliFlags := GetCLIFlags()
 	args := GetArgs(cliFlags)
 
