@@ -11,16 +11,17 @@ func main() {
 		MessageError("usage: minimod <module-name>")
 		os.Exit(1)
 	}
-	cmd := os.Args[1]
 
-	if cmd == "-v" || cmd == "--version" {
-		println(Version())
-		return
-	}
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "-v", "--version":
+			println(Version())
+			return
 
-	if cmd == "-h" || cmd == "--help" {
-		println("bro just use minimod <module-name>")
-		return
+		case "-h", "--help":
+			println("just use minimod <module-name>")
+			return
+		}
 	}
 
 	packageName := os.Args[1]
