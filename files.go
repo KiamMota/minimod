@@ -37,13 +37,13 @@ func WriteFile(path string, content string) error {
 	if FileExists(path) {
 		return NewMinimodError("File already exists!")
 	}
-	e := os.WriteFile(path, []byte(content), os.FileMode(os.O_RDWR))
-	if e != nil {
-		return NewMinimodError(e.Error())
+	err := os.WriteFile(path, []byte(content), 0644)
+	if err != nil {
+		return NewMinimodError(err.Error())
 	}
+
 	return nil
 }
-
 func DeleteDir(path string) error {
 	_, e := os.Stat(path)
 	if e != nil {
