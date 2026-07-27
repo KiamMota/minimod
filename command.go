@@ -1,6 +1,8 @@
 package main
 
-import "os/exec"
+import (
+	"os/exec"
+)
 
 func GoModInit(packageName string) error {
 	dir, err := GetAbsolute(packageName)
@@ -14,14 +16,8 @@ func GoModInit(packageName string) error {
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return NewMinimodError(
-			"Error executing module initialization in Go:" + err.Error() + string(out),
+			"error executing go mod init: " + err.Error() + "\n" + string(out),
 		)
-
-		if e := DeleteDir(packageName); e != nil {
-			NewMinimodError(e.Error())
-		}
-
-		return err
 	}
 
 	return nil
