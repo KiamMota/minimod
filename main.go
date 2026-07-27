@@ -1,36 +1,26 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
 
 func main() {
-	if err := Create(); err != nil {
+	cliFlags := GetCLIFlags()
+	args := GetArgs(cliFlags)
+
+	if len(args) == 0 {
+		MessageError("usage: minimod <module-name>")
+		os.Exit(1)
+	}
+
+	if err := Create(args[0], cliFlags); err != nil {
 		MessageError(err.Error())
 		os.Exit(1)
 	}
 }
 
-func Create() error {
-	args := os.Args[1:]
-
-	if len(args) == 0 {
-		return fmt.Errorf("usage: minimod <module-name>")
-	}
-
-	switch args[0] {
-	case "-v", "--version":
-		fmt.Println(Version())
-		return nil
-
-	case "-h", "--help":
-		fmt.Println("usage: minimod <module-name>")
-		return nil
-	}
-
-	packageName := args[0]
+func Create(packageName string, flags CLIFlags) error {
 
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -43,7 +33,8 @@ func Create() error {
 		return err
 	}
 
-	cleanup := false
+	cleanup := true
+
 	defer func() {
 		if cleanup {
 			DeleteDir(packageName)
@@ -55,19 +46,25 @@ func Create() error {
 		return err
 	}
 
-	if err := WriteFile(filepath.Join(packageName, "main.go"), MainContent()); err != nil {
-		cleanup = true
-		return err
+	if flags.Main {
+		if err := WriteFile(filepath.Join(packageName, "main.go"), MainContent()); err != nil {
+			cleanup = true
+			return err
+		}
 	}
 
-	if err := WriteFile(filepath.Join(packageName, ".gitignore"), GitIgnoreContent()); err != nil {
-		cleanup = true
-		return err
+	if flags.GitIgnore {
+		if err := WriteFile(filepath.Join(packageName, ".gitignore"), GitIgnoreContent()); err != nil {
+			cleanup = true
+			return err
+		}
 	}
 
-	if err := WriteFile(filepath.Join(packageName, "README.md"), ReadmeContent(packageName)); err != nil {
-		cleanup = true
-		return err
+	if flags.Readme {
+		if err := WriteFile(filepath.Join(packageName, "README.md"), ReadmeContent(packageName)); err != nil {
+			cleanup = true
+			return err
+		}
 	}
 
 	MessageOK("created module in", absPath)
